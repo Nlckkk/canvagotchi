@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "Canvagotchi",
+  "version": "1.0",
+  "description": "A retro-styled productivity companion that links assignments to pet care",
+  "icons": {
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "identity",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://www.googleapis.com/*",
+    "*://*/*"
+  ],
+  "oauth2": {
+    "client_id": "506314092692-4sp12h4j7lvvvsfv7q7l4s0po8cm61t4.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/calendar.readonly"
+    ]
+  },
+  "web_accessible_resources": [{
+    "resources": [
+      "tf_animals/individual_frames/birds1/*",
+      "sfx/*",
+      "icons/*",
+      "retro.css",
+      "assets/*"
+    ],
+    "matches": ["<all_urls>"]
+  }],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content.js"],
+    "css": ["retro.css"],
+    "run_at": "document_idle"
+  }],
+  "action": {
+    "default_icon": {
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Canvagotchi",
+    "default_popup": "popup.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}

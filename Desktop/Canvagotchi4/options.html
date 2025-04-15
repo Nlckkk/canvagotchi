@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Canvagotchi Options</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f7f7f7;
+      }
+      label {
+        font-weight: bold;
+      }
+      input[type="text"] {
+        padding: 5px;
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 10px;
+      }
+      button {
+        padding: 8px 16px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      #status {
+        margin-top: 10px;
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Canvagotchi Options</h1>
+    <label for="calendarId">Calendar ID:</label>
+    <input type="text" id="calendarId" placeholder="Leave blank for primary calendar" />
+    <button id="saveBtn">Save</button>
+    <div id="status"></div>
+
+    <script src="options.js"></script>
+  </body>
+</html>
