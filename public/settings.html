@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customize Canvagotchi Colours</title>
+  <style>
+    body { background: #111; color: #fff; font-family: sans-serif; padding: 20px; }
+    label { display: block; margin: 8px 0; }
+    input[type=color] { margin-left: 8px; vertical-align: middle; }
+    button { margin-top: 12px; padding: 8px 12px; font-size: 1em; }
+  </style>
+</head>
+<body>
+  <h1>Customize Canvagotchi Colours</h1>
+
+  <label>
+    Assignment text
+    <input type="color" id="assignment_text_color">
+  </label>
+  <label>
+    Assignment border
+    <input type="color" id="assignment_border_color">
+  </label>
+  <label>
+    Assignment background
+    <input type="color" id="assignment_background_color">
+  </label>
+  <label>
+    Progress bar
+    <input type="color" id="progress_bar_color">
+  </label>
+
+  <button id="saveBtn">Save</button>
+  <span id="status" style="margin-left:12px;color:#6b8cff"></span>
+
+  <script>
+    const API_ROOT = "https://canvagotchi4-pq97mrlf1-nick-s-projects-1ac688c7.vercel.app";
+    const API = API_ROOT + "/api/ui-settings";
+
+    async function loadSettings() {
+      try {
+        const res = await fetch(API);
+        const data = await res.json();
+        document.getElementById("assignment_text_color").value = data.assignment_text_color;
+        document.getElementById("assignment_border_color").value = data.assignment_border_color;
+        document.getElementById("assignment_background_color").value = data.assignment_background_color;
+        document.getElementById("progress_bar_color").value = data.progress_bar_color;
+      } catch (e) {
+        console.error("Could not load settings:", e);
+      }
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      const payload = {
+        assignment_text_color:       document.getElementById("assignment_text_color").value,
+        assignment_border_color:     document.getElementById("assignment_border_color").value,
+        assignment_background_color: document.getElementById("assignment_background_color").value,
+        progress_bar_color:          document.getElementById("progress_bar_color").value
+      };
+      try {
+        await fetch(API, {
+          method:  "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify(payload)
+        });
+        document.getElementById("status").textContent = "Saved ✓";
+        // Tell any open Canvas tabs to refresh their UI settings:
+        if (chrome?.runtime?.sendMessage) {
+          chrome.runtime.sendMessage({ type: "refresh-ui" });
+        }
+      } catch (e) {
+        console.error("Save failed:", e);
+        document.getElementById("status").textContent = "Error";
+      }
+    });
+
+    // Load on open
+    loadSettings();
+  </script>
+</body>
+</html>
