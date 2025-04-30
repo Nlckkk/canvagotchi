@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Canvagotchi · UI Colours</title>
+  <style>
+    body{font-family:sans-serif;background:#1e1e1e;color:#fff;padding:2rem}
+    label{display:block;margin:1rem 0}
+    input[type="color"]{margin-left:1rem;border:none;width:50px;height:30px}
+    button{margin-top:2rem;padding:.4rem 1rem}
+  </style>
+</head>
+<body>
+  <h2>Customize Canvagotchi Colours</h2>
+
+  <form id="ui-form">
+    <label>Assignment text
+      <input type="color" id="assignment_text_color">
+    </label>
+  
+    <label>Assignment border
+      <input type="color" id="assignment_border_color">
+    </label>
+  
+    <label>Assignment background
+      <input type="color" id="assignment_background_color">
+    </label>
+  
+    <label>Progress bar
+      <input type="color" id="progress_bar_color">
+    </label>
+  
+    <button type="submit">Save</button>
+    <span id="status" style="margin-left:1rem;color:#4caf50;display:none;">Saved ✓</span>
+  </form>
+  
+
+  <script>
+    const API = "/api/ui-settings/1/";
+    const status = document.getElementById("status");
+  
+    async function load() {
+      const r = await fetch(API);
+      const d = await r.json();
+      ["assignment_text_color","assignment_border_color",
+       "assignment_background_color","progress_bar_color"]
+        .forEach(id => (document.getElementById(id).value = d[id]));
+    }
+  
+    document.getElementById("ui-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const payload = {};
+      ["assignment_text_color","assignment_border_color",
+       "assignment_background_color","progress_bar_color"]
+        .forEach(id => (payload[id] = document.getElementById(id).value));
+      await fetch(API, {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload)
+      });
+      // quick “Saved” toast
+      status.style.display = "inline";
+      setTimeout(() => (status.style.display = "none"), 2000);
+      // tell extension to reload colors if user has Canvas open
+      chrome?.runtime?.sendMessage?.({ type: "refresh-ui" });
+    });
+  
+    load();
+  </script>
+  
+</body>
+</html>

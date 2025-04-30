@@ -1,0 +1,16 @@
+{
+  "name": "canvagotchi4",
+  "version": "1.0.0",
+  "description": "Canvagotchi 🐣 Canvagotchi is a retro-styled productivity companion that gamifies assignment tracking. By integrating with Google Calendar, it helps students stay on top of their coursework while caring for a digital pet. Submit assignments on time, and your pet thrives. Miss deadlines, and your pet gets sad. It’s productivity meets nostalgia!",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/kv": "^3.0.0",
+    "redis": "^4.7.0"
+  }
+}

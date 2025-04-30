@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customize Canvagotchi</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0 }
+    html, body { height: 100% }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #121212;
+      color: #EEE;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 1rem;
+    }
+    .card {
+      background: #1F1F1F;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+      padding: 2rem;
+      width: 100%;
+      max-width: 360px;
+    }
+    .card h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      row-gap: 1rem;
+      column-gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-grid label {
+      align-self: center;
+      font-size: 0.95rem;
+    }
+    .form-grid input[type="color"] {
+      width: 80px;
+      height: 40px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #333;
+      color: #fff;
+    }
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .actions button {
+      flex: 1;
+      padding: 0.7rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    #resetBtn { background: #555; color: #EEE }
+    #resetBtn:hover { background: #777 }
+    #saveBtn { background: #4C9AFF; color: #fff }
+    #saveBtn:hover { background: #6BAEFF }
+    #status {
+      min-width: 2em;
+      text-align: center;
+      font-size: 1.1rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #status.visible { opacity: 1 }
+    @media (max-width: 400px) {
+      .card { padding: 1rem }
+      .form-grid { grid-template-columns: 1fr }
+      .actions { flex-direction: column }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Customize Canvagotchi</h1>
+    <div class="form-grid">
+      <label for="assignment_text_color">Text</label>
+      <input type="color" id="assignment_text_color" value="#ffffff">
+
+      <label for="assignment_border_color">Border</label>
+      <input type="color" id="assignment_border_color" value="#ffffff">
+
+      <label for="assignment_background_color">Background</label>
+      <input type="color" id="assignment_background_color" value="#444444">
+
+      <label for="progress_bar_color">Progress</label>
+      <input type="color" id="progress_bar_color" value="#ffffff">
+    </div>
+    <div class="actions">
+      <button id="resetBtn">Reset</button>
+      <button id="saveBtn">Save</button>
+    </div>
+    <div id="status">✓</div>
+  </div>
+
+  <script>
+    const API = 'https://canvagotchi-kv.canvagotchi.workers.dev/api/ui-settings';
+    const DEFAULTS = {
+      assignment_text_color:       '#ffffff',
+      assignment_border_color:     '#ffffff',
+      assignment_background_color: '#444444',
+      progress_bar_color:          '#ffffff'
+    };
+
+    const statusEl = document.getElementById('status');
+    function setStatus(ok = true) {
+      statusEl.textContent = ok ? '✓' : '⚠';
+      statusEl.style.color  = ok ? '#5aee7a' : '#e84a4a';
+      statusEl.classList.add('visible');
+      setTimeout(() => statusEl.classList.remove('visible'), 2000);
+    }
+
+    // Load saved colors on open
+    window.addEventListener('DOMContentLoaded', async () => {
+      if (chrome?.storage?.local) {
+        chrome.storage.local.get(Object.keys(DEFAULTS), data => {
+          for (let key in DEFAULTS) {
+            document.getElementById(key).value = data[key] || DEFAULTS[key];
+          }
+        });
+      }
+      try {
+        let res = await fetch(API);
+        if (!res.ok) throw new Error();
+        let d = await res.json();
+        for (let key in DEFAULTS) {
+          if (d[key]) document.getElementById(key).value = d[key];
+        }
+      } catch (e) {
+        console.warn('Could not fetch remote settings', e);
+      }
+    });
+
+    // Save only the color values
+    async function saveSettings() {
+      let payload = {};
+      for (let key in DEFAULTS) {
+        payload[key] = document.getElementById(key).value;
+      }
+      try {
+        let res = await fetch(API, {
+          method:  'PATCH',
+          headers: {'Content-Type':'application/json'},
+          body:    JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error();
+        if (chrome?.storage?.local) {
+          chrome.storage.local.set(payload, () => {
+            setStatus(true);
+            chrome.runtime.sendMessage({ type: 'refresh-ui' });
+          });
+        } else {
+          setStatus(true);
+        }
+      } catch (e) {
+        console.error('Save failed', e);
+        setStatus(false);
+      }
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', saveSettings);
+
+    // Reset to defaults
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      for (let key in DEFAULTS) {
+        document.getElementById(key).value = DEFAULTS[key];
+      }
+      if (chrome?.storage?.local) {
+        chrome.storage.local.set(DEFAULTS, () => {
+          setStatus(true);
+          chrome.runtime.sendMessage({ type: 'refresh-ui' });
+        });
+      } else {
+        setStatus(true);
+      }
+    });
+  </script>
+</body>
+</html>

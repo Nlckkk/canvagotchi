@@ -1,0 +1,13 @@
+name               = "canvagotchi-kv"
+main               = "src/index.js"
+compatibility_date = "2025-04-30"
+account_id         = "852ed64ea90bf1c4b381a2f7b8e031c4"
+workers_dev        = true
+
+[[kv_namespaces]]
+binding    = "UI_SETTINGS"
+id         = "560cbdb553cd47edb662a2a10f2e386e"
+preview_id = "72e259e2d5cc46d397056c90d7c90938"
+
+[site]
+bucket = "./public"
